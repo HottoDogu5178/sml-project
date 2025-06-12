@@ -48,6 +48,8 @@
                         btn.className = 'cell-btn';
                         btn.onclick = () => move(i, j);
                         cell.appendChild(btn);
+                    } else if (board[i][j] !== '') {
+                        cell.innerHTML = `<span style="color: ${board[i][j] === 'X' ? '#2196f3' : '#e53935'};">${board[i][j]}</span>`;
                     } else {
                         cell.textContent = board[i][j];
                     }
