@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <title>井字棋遊戲</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif; background: #f7f7f7; }
+        h1 { text-align: center; margin-top: 40px; }
+        .container { display: flex; flex-direction: column; align-items: center; }
+        table { border-collapse: collapse; margin: 30px 0; }
+        td { width: 70px; height: 70px; text-align: center; font-size: 2.5em; border: 2px solid #333; background: #fff; }
+        button.cell-btn {
+            width: 100%; height: 100%; font-size: 2.5em; background: none; border: none; cursor: pointer;
+        }
+        button.cell-btn:disabled { color: #888; cursor: not-allowed; }
+        .winner { color: #2196f3; font-size: 1.5em; margin-bottom: 20px; }
+        .restart-btn { padding: 10px 30px; font-size: 1.1em; border-radius: 6px; border: 1px solid #2196f3; background: #fff; color: #2196f3; cursor: pointer; transition: background 0.2s; }
+        .restart-btn:hover { background: #2196f3; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>井字棋遊戲</h1>
+    <div class="container">
+        <div id="status" class="winner"></div>
+        <table id="board"></table>
+        <button class="restart-btn" onclick="restart()" style="display:none;">重新開始</button>
+    </div>
+    <script>
+        let board = [
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', '']
+        ];
+        let turn = 'X';
+        let winner = null;
+        const boardElem = document.getElementById('board');
+        const statusElem = document.getElementById('status');
+        const restartBtn = document.querySelector('.restart-btn');
+
+        function render() {
+            boardElem.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < 3; j++) {
+                    const cell = document.createElement('td');
+                    if (board[i][j] === '' && !winner) {
+                        const btn = document.createElement('button');
+                        btn.className = 'cell-btn';
+                        btn.onclick = () => move(i, j);
+                        cell.appendChild(btn);
+                    } else {
+                        cell.textContent = board[i][j];
+                    }
+                    row.appendChild(cell);
+                }
+                boardElem.appendChild(row);
+            }
+            if (winner) {
+                statusElem.textContent = winner + ' 勝利！';
+                restartBtn.style.display = 'inline-block';
+            } else if (isFull()) {
+                statusElem.textContent = '平手！';
+                restartBtn.style.display = 'inline-block';
+            } else {
+                statusElem.textContent = '輪到 ' + turn;
+                restartBtn.style.display = 'none';
+            }
+        }
+
+        function move(i, j) {
+            if (board[i][j] === '' && !winner) {
+                board[i][j] = turn;
+                winner = checkWinner();
+                if (!winner && !isFull()) {
+                    turn = turn === 'X' ? 'O' : 'X';
+                }
+                render();
+            }
+        }
+
+        function checkWinner() {
+            for (let i = 0; i < 3; i++) {
+                if (board[i][0] && board[i][0] === board[i][1] && board[i][1] === board[i][2]) return board[i][0];
+                if (board[0][i] && board[0][i] === board[1][i] && board[1][i] === board[2][i]) return board[0][i];
+            }
+            if (board[0][0] && board[0][0] === board[1][1] && board[1][1] === board[2][2]) return board[0][0];
+            if (board[0][2] && board[0][2] === board[1][1] && board[1][1] === board[2][0]) return board[0][2];
+            return null;
+        }
+
+        function isFull() {
+            return board.flat().every(cell => cell !== '');
+        }
+
+        function restart() {
+            board = [['', '', ''], ['', '', ''], ['', '', '']];
+            turn = 'X';
+            winner = null;
+            render();
+        }
+
+        render();
+    </script>
+</body>
+</html>
